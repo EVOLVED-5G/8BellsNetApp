@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+<!--HEADER-->
+{% block head %}
+
+{% endblock %}
+
+<!--BODY-->
+{% block body %}
+<div class="ip">
+    <h2>IP Update</h2>
+    <form name="updateip" action="/update/{{ip.0}}" method="POST">
+        <label for="cars">IP ADRESS:</label>
+        <input type="text" name="ip" id="ip" value="{{ip.1}}">
+        <label for="access">ACCESS:</label>
+        <select class="drop" name="access" id="access" value="{{ip.2}}">
+            <option value="ALLOW">ALLOW</option>
+            <option value="DO NOT ALLOW">DO NOT ALLOW</option>
+        </select>
+        <input type="Submit" value="Update IP" onclick="return ValidateIPaddress(updateip.ip);">
+    </form>
+</div>
+{% endblock %}

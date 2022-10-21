@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <div class="header">
+        <img src="./static/EVOLVED5G.png" alt="evoled-5g-logo" style="float:right;height:50px;padding-right:1%;padding-top:1%;">
+        <a id='redirect_to_start' href="/netapp"><h2>NETAPP CONTROL ROOM</h2></a>
+        <ul class="menu">
+            <li><a href="/netapp"><h3>HOME</h3></a></li>
+            <li><a href="/about"><h3>ABOUT</h3></a></li>
+        </ul>
+    </div>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
+</body>
+<div class="footer">
+    <p>Powered by EightBells</p>
+</div>
+</html>
+<script>
+    function ValidateIPaddress(inputText){
+
+        var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        if(inputText.value.match(ipformat)){
+            return true;
+        }
+        else{
+            alert("You have entered an invalid IP address!");
+            return false;
+        }
+    }
+    function ValidateIpList(){
+        const csvFile = document.getElementById("file");
+        const reader = new FileReader();
+    }
+function csvToArray(str, delimiter = ",") {
+
+    
+  // slice from start of text to the first \n index
+  // use split to create an array from string by delimiter
+  const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+
+  // slice from \n index + 1 to the end of the text
+  // use split to create an array of each csv value row
+  const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+
+  // Map the rows
+  // split values from each row into an array
+  // use headers.reduce to create an object
+  // object properties derived from headers:values
+  // the object passed as an element of the array
+  const arr = rows.map(function (row) {
+    const values = row.split(delimiter);
+    const el = headers.reduce(function (object, header, index) {
+      object[header] = values[index];
+      return object;
+    }, {});
+    return el;
+  });
+
+  // return the array
+  return arr;
+}
+</script>

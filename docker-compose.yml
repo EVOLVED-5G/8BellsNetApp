@@ -1,0 +1,53 @@
+version: '3.1'
+
+
+services:
+  netapp:
+    container_name: "myNetapp"
+    image: 8b_netapp:latest
+    env_file:
+      - .env
+    environment:
+      NETAPP_NAME: "${netapp_name}"
+      NETAPP_IP: "${netapp_ip}"
+      NEF_IP: "${nef_ip}"
+    restart: unless-stopped
+    build:
+      # build the image from Dockerfile
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    ports:
+      # bind on our 5000 port because most people have 80, 8080 already bound
+      - "${netapp_port}:${netapp_port}"
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: NetApp_db
+    image: postgres:14
+    ports:
+      - "${postgres_port}:${postgres_port}"
+    environment:
+      POSTGRES_PASSWORD: ${postgres_password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  adminer:
+    container_name: NetApp_adminer
+    image: adminer:4.7
+    ports:
+      - "${adminer_port_one}:${adminer_port_two}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+# volumes definition here
+volumes:
+  # just a persistance data
+  mysql-data:
+    driver: local

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+<!--HEADER-->
+{% block head %}
+{% endblock %}
+
+<!--BODY-->
+{% block body %}
+<div class="container" style="z-index: 1;">
+
+    <h2>NETAPP MANUAL</h2>
+    <table style="width:100%">
+        <tr>
+            <th>WEB PAGE</th>
+            <td>INFORMATION</td>
+        </tr>
+        <tr>
+          <th>Start Page</th>
+          <td><img src="./static/startpage.png" alt="start-page-info" width="500" height="300" style="float:left"></td>
+        </tr>
+        <tr>
+          <th>Edit Page</th>
+          <td><img src="./static/editpage.png" alt="edit-page-info" width="500" height="300" style="float:left"></td>
+        </tr>
+    </table>
+</body>
+<style>
+h2{
+    text-align: start;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 5px;
+  text-align: left;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+<!--HEADER-->
+{% block head %}
+{% endblock %}
+
+<!--BODY-->
+{% block body %}
+<div class="container">
+    <div class="list" id="history">
+        <h2>HISTORY</h2>
+        <table>
+            <tr>
+                <th>IP</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                {% if history|length < 1 %}
+                    <h2> NO HISTORY </h2>
+                {% else %}
+                    {% for row in history %}
+                    <tr>
+                        <td>{{ row.1 }}</td>
+                        <td>{{ row.2.date() }}</td>
+                        <td>{{ row.3 }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+    <div class="list">
+        <table>
+            <tr>
+                <th>IP</th>
+                <th>
+                    <div class="dropdown">
+                        <button class="dropbtn">Access  <i class="fa fa-arrow-down"></i></button>
+                        <div class="dropdown-content">
+                            <a id='search' href="/netapp/SearchByAccess/{{'ALL'}}">ALL</a>
+                            <a id='search' href="/netapp/SearchByAccess/{{'ALLOW'}}"></i>ALLOW</a>
+                            <a id='search' href="/netapp/SearchByAccess/{{'DO NOT ALLOW'}}">DO NOT ALLOW</a>
+                        </div>
+                    </div>
+                </th>
+                <th>Added</th>
+                <th>Delete</th>
+                <th>Update</th>
+            </tr>
+                {% if ips|length < 1 %}
+                    <h2> There are no IPs</h2>
+                {% else %}
+                    {% for ip in ips %}
+                    <tr>
+                        <td>{{ ip.1 }}</td>
+                        <td>{{ ip.2 }}</td>
+                        <td>{{ ip.3.date() }}</td>
+                        <td><a id='cancel' href="/delete/{{ip.0}}"><i class="fa fa-ban"></i></a></td>
+                        <td><a id='update' href="/update/{{ip.0}}"><i class="fa fa-wrench"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+    <div class="list">
+        <h2>ADD IP</h2>
+        <form name="addip" action="/addip" method="POST">
+            <input type="text" name="ip" id="ip" required>
+            <input type="Submit" value="Give Access" onclick="return ValidateIPaddress(addip.ip);">
+        </form>
+        <form enctype="multipart/form-data" name="importcsv" action="/importcsv" method="POST">
+            <label for="file">Import csv file:</label>
+            <input type="file" id="file" name="file" accept=".csv" required>
+            <input type = "submit"/>
+        </form>
+    </div>
+</div>
+{% endblock %}
