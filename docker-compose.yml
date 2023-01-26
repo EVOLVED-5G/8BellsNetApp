@@ -8,19 +8,21 @@ services:
     env_file:
       - .env
     environment:
-      NETAPP_NAME: "${netapp_name}"
-      NETAPP_IP: "${netapp_ip}"
-      NEF_IP: "${nef_ip}"
+      NETAPP_NAME: ${netapp_name}
+      NETAPP_IP: ${netapp_ip}
+      NEF_IP: ${nef_ip}
+      NEF_USER: "admin@my-email.com"
+      NEF_PASS: "pass"
+      NEF_PORT: "8888"
     restart: unless-stopped
     build:
       # build the image from Dockerfile
-      context: .
+      context: ./pythonnetapp
       dockerfile: Dockerfile
     volumes:
-      - ./app:/app
+      - ./pythonnetapp:/app
     ports:
-      # bind on our 5000 port because most people have 80, 8080 already bound
-      - "${netapp_port}:${netapp_port}"
+      - 5000:5000
     depends_on:
       - postgres
 
@@ -28,7 +30,7 @@ services:
     container_name: NetApp_db
     image: postgres:14
     ports:
-      - "${postgres_port}:${postgres_port}"
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: ${postgres_password}
     healthcheck:
@@ -41,7 +43,7 @@ services:
     container_name: NetApp_adminer
     image: adminer:4.7
     ports:
-      - "${adminer_port_one}:${adminer_port_two}"
+      - 8008:8080
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,0 +1,17 @@
+{
+  "folder_to_store_certificates": "/usr/src/app/capif_onboarding",
+  "capif_host": "capifcore",
+  "capif_http_port": 8080,
+  "capif_https_port": 443,
+  "capif_netapp_username": "8b_netapp",
+  "capif_netapp_password": "8bpass",
+  "capif_callback_url": "http://host.docker.internal:8086",
+  "description": "8bells_netapp_description",
+  "csr_common_name": "8b_netapp",
+  "csr_organizational_unit": "8bells_u",
+  "csr_organization": "EightBells",
+  "crs_locality": "Athens",
+  "csr_state_or_province_name": "Athens",
+  "csr_country_name": "GR",
+  "csr_email_address": "alex.antypas@8bellsresearch.com"
+}
