@@ -1,6 +1,6 @@
 Flask
-flask_sqlalchemy
+Flask-RESTful
 requests
 six
-Flask-RESTful
 psycopg2-binary --no-binary :all:
+typing-extensions==3.10.0.2
