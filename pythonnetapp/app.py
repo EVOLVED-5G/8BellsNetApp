@@ -37,12 +37,12 @@ app = Flask(__name__, template_folder='templates')
 
 ## Functions
 #FILTER FOR FILENAME
-def allowed_file(filename):
-    return '.' in filename and \
-    filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# def allowed_file(filename):
+#     return '.' in filename and \
+#     filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #ALLINONE ADD
-def thebigadd(ip):
+def SubcribeAndInsert(ip):
     print("Working with ip:",ip)
 
     ## subscribe to QoS and Location
@@ -93,18 +93,20 @@ def netapp():
 #Import csv
 @app.route('/importcsv', methods=['POST'])
 def importcsv():
-    if request.method=='POST':
-        #SAVE CSV FILE IN FOLDER: csv_input_file
+    if request.method == 'POST':
+        #folder: csv_input_file
         f=request.files['file']
         filename = secure_filename(f.filename)
         new_filename= f'{filename.split(".")[0]}_{str(datetime.datetime.now())}.csv'
         file_path = os.path.join("csv_input_files", new_filename)
         f.save(file_path)
+
         #CHECK IF THERE ARE IPS IN SYSTEM
         all_ips = db_controller.getIps()
         there_are_ips=bool(False)
         if all_ips:
             there_are_ips=bool(True)
+
         #OPEN CSV
         with open(file_path) as f:
             reader = csv.reader(f)
@@ -120,7 +122,7 @@ def importcsv():
                             break
                 if check:
                     #ADD IP
-                    thebigadd(row[0])
+                    SubcribeAndInsert(row[0])
                     
     #IF CSV IS EMPTY OR CORRUPTED
     else:
@@ -139,7 +141,7 @@ def addip():
             print ("\nIP already exists. Redirecting..")
             return redirect('/netapp')
 
-    thebigadd(post_ip)
+    SubcribeAndInsert(post_ip)
     return redirect('/netapp')
 
 #Delete IP row
@@ -204,6 +206,7 @@ def update(id):
 
         ## different IP
         else:
+            current_ip = request.form['ip']
             try:
                 Qos_Unsubscribe(ip)
                 Location_Unsubscribe(ip)
@@ -212,21 +215,27 @@ def update(id):
                     current_location_id = Location_CreateSubscription(request.form['ip'])
                 else:
                     current_qos_id = 'not_subscribed'
+                    current_location_id = "not_subscribed"
             except:
                 return render_template('error.html', error='There was a problem with Update!')
-            current_ip = request.form['ip']
-        #UPDATE
+        
+        ## update database
         try:
             db_controller.updateIp(current_id,current_ip,current_access,current_date,current_qos_id,current_location_id)
             return redirect('/netapp')
         except:
             return render_template('error.html', error='There was a problem with DB!')
+    
+    ## Get update html
     else:
         return render_template('update.html', ip=ip)
 
 #SERACH BY ACCESS
 @app.route('/netapp/SearchByAccess/<string:access>')
 def SearchByAccess(access):
+    delete_existing_qos_subscriptions()
+    delete_existing_location_subscriptions()
+
     ips_all = db_controller.getIps()
     if access == "ALL":
         return render_template('index.html', ips=ips_all)
@@ -234,8 +243,8 @@ def SearchByAccess(access):
         all_ips = db_controller.searchByAccess(access)
         return render_template('index.html', ips=all_ips)
 
-################ NEF GETS AND POSTS     ##############
 
+################ NEF GETS AND POSTS     ##############
 #LOGIN TO NEF
 @app.route("/unregistered_traffic", methods=["POST", "GET"])
 def login():
@@ -437,22 +446,27 @@ def Qos_Unsubscribe(ip):
 
     print("QosUnsub id: ",subscription_id)
 
-    qos_awareness = QosAwareness(
-                        nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                        nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                        capif_host=emulator_utils.get_capif_host(),
-                        capif_https_port=emulator_utils.get_capif_https_port()
-                    )
+    if(subscription_id != "not_subscribed"):
 
-    try:
-        qos_awareness.delete_subscription(netapp_id, subscription_id)
+        qos_awareness = QosAwareness(
+                            nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
+                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                            capif_host=emulator_utils.get_capif_host(),
+                            capif_https_port=emulator_utils.get_capif_https_port()
+                        )
 
-        action = "UNSUBSCRIPTION"
-        details = "At {} IP : {} unsubscribed from qos notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
-        db_controller.addHistoryEvent(ip[1],action,details)
-    except:
-        return render_template('error.html', error='There was a problem with unsubscribing from Qos!')
+        try:
+            qos_awareness.delete_subscription(netapp_id, subscription_id)
+
+            action = "UNSUBSCRIPTION"
+            details = "At {} IP : {} unsubscribed from qos notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
+            db_controller.addHistoryEvent(ip[1],action,details)
+        except:
+            return render_template('error.html', error='There was a problem with unsubscribing from Qos!')
+
+    else:
+        return True
     
               
 ## Unsubscribe from Location Events
@@ -462,22 +476,27 @@ def Location_Unsubscribe(ip):
 
     print("LocationUnsub id: ",subscription_id)
 
-    location_subscriber = LocationSubscriber(
-                            nef_url= emulator_utils.get_url_of_the_nef_emulator(),
-                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                            folder_path_for_certificates_and_capif_api_key= emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                            capif_host= emulator_utils.get_capif_host(),
-                            capif_https_port= emulator_utils.get_capif_https_port() 
-                        )
+    if(subscription_id != "not_subscribed"):
 
-    try:
-        location_subscriber.delete_subscription(netapp_id,subscription_id)
+        location_subscriber = LocationSubscriber(
+                                nef_url= emulator_utils.get_url_of_the_nef_emulator(),
+                                nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
+                                folder_path_for_certificates_and_capif_api_key= emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                                capif_host= emulator_utils.get_capif_host(),
+                                capif_https_port= emulator_utils.get_capif_https_port() 
+                            )
 
-        action = "UNSUBSCRIPTION"
-        details = "At {} IP : {} unsubscribed from event notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
-        db_controller.addHistoryEvent(ip[1],action,details)
-    except:
-        return render_template('error.html', error='There was a problem with history!')
+        try:
+            location_subscriber.delete_subscription(netapp_id,subscription_id)
+
+            action = "UNSUBSCRIPTION"
+            details = "At {} IP : {} unsubscribed from event notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
+            db_controller.addHistoryEvent(ip[1],action,details)
+        except:
+            return render_template('error.html', error='There was a problem with history!')
+
+    else:
+        return True
 
 
 
@@ -541,6 +560,6 @@ if __name__ == '__main__':
     init_database.init_db()
     print("Netapp running..")
     
-    delete_existing_qos_subscriptions()
-    delete_existing_location_subscriptions()
+    # delete_existing_qos_subscriptions()
+    # delete_existing_location_subscriptions()
     app.run(debug=True, host='0.0.0.0')

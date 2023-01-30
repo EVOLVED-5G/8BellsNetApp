@@ -9,9 +9,6 @@ ADD . /usr/src/app/
 COPY requirements.txt /usr/src/app/
 RUN pip3 install evolved5g
 RUN pip install -r requirements.txt
-# RUN cp -r . /usr/src/app/
-# ADD ./ /usr/src/app/
-# ADD . .
 
 CMD ["sh", "prepare.sh"]
 
