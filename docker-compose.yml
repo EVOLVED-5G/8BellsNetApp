@@ -17,10 +17,10 @@ services:
     restart: unless-stopped
     build:
       # build the image from Dockerfile
-      context: ./pythonnetapp
+      context: ./src
       dockerfile: Dockerfile
     volumes:
-      - ./pythonnetapp:/app
+      - ./src:/app
     ports:
       - 5000:5000
     depends_on:

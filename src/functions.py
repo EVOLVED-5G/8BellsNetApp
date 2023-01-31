@@ -12,6 +12,8 @@ nef_ip=os.environ['NEF_IP']
 app_ip=os.environ['NETAPP_IP']
 nef_domain="@domain.com"
 
+
+## Subscribe and Insert to database
 def SubcribeAndInsert(ip):
     print("Working with ip:",ip)
 
@@ -40,7 +42,7 @@ def SubcribeAndInsert(ip):
     except:
         return render_template('error.html', error='There was a problem with DB!')
 
-#SUBSCRIBE QOS IP
+## Subscribe QoS
 def Qos_CreateSubscription(ip):
     print("Trying New QoS subscription with ip: "+ ip)
 
@@ -104,7 +106,7 @@ def Qos_CreateSubscription(ip):
             raise
 
 
-#SUBSCRIBE EVENT IP
+## Subscribe Location event
 def Location_CreateSubscription(ip):
     print("Trying New location subscription with ip: "+ ip)
     
@@ -151,63 +153,6 @@ def Location_CreateSubscription(ip):
             return False, "There is already an active location subscription for UE with external id " + external_id
         else:
             raise
-
-def delete_all():
-    delete_existing_qos_subscriptions()
-    delete_existing_location_subscriptions()
-    db_controller.deleteAllIps()
-
-
-def delete_existing_qos_subscriptions():
-    # How to get all subscriptions
-    netapp_id = "myNetapp"
-    qos_awareness = QosAwareness(
-                        nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                        nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                        capif_host=emulator_utils.get_capif_host(),
-                        capif_https_port=emulator_utils.get_capif_https_port()
-                    )
-
-    try:
-        all_subscriptions = qos_awareness.get_all_subscriptions(netapp_id)
-        # print(all_subscriptions)
-
-        for subscription in all_subscriptions:
-            subscription_id = subscription.link.split("/")[-1]
-            print("Deleting qos subscription with id: " + subscription_id)
-            qos_awareness.delete_subscription(netapp_id, subscription_id)
-    except ApiException as ex:
-        if ex.status == 404:
-            print("No active qos transcriptions found")
-        else: #something else happened, re-throw the exception
-            raise
-    
-def delete_existing_location_subscriptions():
-    # How to get all subscriptions
-    netapp_id = "myNetapp"
-    location_subscriber = LocationSubscriber(
-                            nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                            capif_host=emulator_utils.get_capif_host(),
-                            capif_https_port=emulator_utils.get_capif_https_port()
-                        )
-
-    try:
-        all_subscriptions = location_subscriber.get_all_subscriptions(netapp_id, 0, 100)
-        # print(all_subscriptions)
-
-        for subscription in all_subscriptions:
-            id = subscription.link.split("/")[-1]
-            print("Deleting location subscription with id: " + id)
-            location_subscriber.delete_subscription(netapp_id, id)
-    except ApiException as ex:
-        if ex.status == 404:
-            print("No active location transcriptions found")
-        else: #something else happened, re-throw the exception
-            raise
-
 
 
 ## Unsubscribe from Qos
@@ -268,3 +213,61 @@ def Location_Unsubscribe(ip):
 
     else:
         return True
+
+
+
+def delete_existing_qos_subscriptions():
+    # How to get all subscriptions
+    netapp_id = "myNetapp"
+    qos_awareness = QosAwareness(
+                        nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                        nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
+                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                        capif_host=emulator_utils.get_capif_host(),
+                        capif_https_port=emulator_utils.get_capif_https_port()
+                    )
+
+    try:
+        all_subscriptions = qos_awareness.get_all_subscriptions(netapp_id)
+        # print(all_subscriptions)
+
+        for subscription in all_subscriptions:
+            subscription_id = subscription.link.split("/")[-1]
+            print("Deleting qos subscription with id: " + subscription_id)
+            qos_awareness.delete_subscription(netapp_id, subscription_id)
+    except ApiException as ex:
+        if ex.status == 404:
+            print("No active qos transcriptions found")
+        else: #something else happened, re-throw the exception
+            raise
+    
+def delete_existing_location_subscriptions():
+    # How to get all subscriptions
+    netapp_id = "myNetapp"
+    location_subscriber = LocationSubscriber(
+                            nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
+                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                            capif_host=emulator_utils.get_capif_host(),
+                            capif_https_port=emulator_utils.get_capif_https_port()
+                        )
+
+    try:
+        all_subscriptions = location_subscriber.get_all_subscriptions(netapp_id, 0, 100)
+        # print(all_subscriptions)
+
+        for subscription in all_subscriptions:
+            id = subscription.link.split("/")[-1]
+            print("Deleting location subscription with id: " + id)
+            location_subscriber.delete_subscription(netapp_id, id)
+    except ApiException as ex:
+        if ex.status == 404:
+            print("No active location transcriptions found")
+        else: #something else happened, re-throw the exception
+            raise
+
+
+def delete_all():
+    delete_existing_qos_subscriptions()
+    delete_existing_location_subscriptions()
+    db_controller.deleteAllIps()

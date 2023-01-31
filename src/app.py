@@ -1,7 +1,4 @@
 from flask import Flask, render_template, request, redirect, Blueprint
-from evolved5g.sdk import QosAwareness,LocationSubscriber
-from evolved5g.swagger_client import UsageThreshold
-from evolved5g.swagger_client.rest import ApiException
 from werkzeug.utils import secure_filename
 import init_database
 import db_controller
@@ -11,7 +8,7 @@ import requests, json, csv, os, sys, datetime
 
 ALLOWED_EXTENSIONS = set(['csv'])
 
-## initialize variables
+## Initialize variables
 netapp_name=os.environ['NETAPP_NAME']
 nef_ip=os.environ['NEF_IP']
 app_ip=os.environ['NETAPP_IP']
@@ -64,7 +61,7 @@ def importcsv():
                         exist = True
                         break
 
-                ## add ip
+                ## Add new ip
                 if not exist:
                     functions.SubcribeAndInsert(row[0])
                     
