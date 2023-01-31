@@ -90,10 +90,19 @@ def updateIp(id,ip,access,date_created,qos_id,event_id):
 
 
 #delete ip
-def deleteIp(ip_id):
+def deleteIp(id):
     conn = connectDatabase()
     cur = conn.cursor()
-    cur.execute('DELETE FROM IP WHERE id = %s;',[ip_id])
+    cur.execute('DELETE FROM IP WHERE id = %s;',[id])
+    conn.commit()
+    cur.close()
+    conn.close()
+    return
+
+def deleteAllIps():
+    conn = connectDatabase()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM IP')
     conn.commit()
     cur.close()
     conn.close()

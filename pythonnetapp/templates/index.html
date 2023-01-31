@@ -8,7 +8,6 @@
 {% block body %}
 <div class="container">
     <div class="list" id="history">
-        <h2>HISTORY</h2>
         <table>
             <tr>
                 <th>IP</th>
@@ -17,8 +16,9 @@
             </tr>
             <tr>
                 {% if history|length < 1 %}
-                    <h2> NO HISTORY </h2>
+                    <h2> History Empty </h2>
                 {% else %}
+                    <h2> History </h2>
                     {% for row in history %}
                     <tr>
                         <td>{{ row.1 }}</td>
@@ -49,8 +49,9 @@
                 <th>Update</th>
             </tr>
                 {% if ips|length < 1 %}
-                    <h2> There are no IPs</h2>
+                    <h2> IP Table Empty </h2>
                 {% else %}
+                    <h2> IP Table </h2>
                     {% for ip in ips %}
                     <tr>
                         <td>{{ ip.1 }}</td>
@@ -65,7 +66,7 @@
         </table>
     </div>
     <div class="list">
-        <h2>ADD IP</h2>
+        <h2>Insert IP</h2>
         <form name="addip" action="/addip" method="POST">
             <input type="text" name="ip" id="ip" required>
             <input type="Submit" value="Give Access" onclick="return ValidateIPaddress(addip.ip);">
