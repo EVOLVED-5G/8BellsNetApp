@@ -107,7 +107,7 @@ def delete(id):
     ## Add to History
     try:
         action = "REMOVE"
-        details = "At {} IP : {} removed from system".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
+        details = "{} : IP {} removed from database".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
         db_controller.addHistoryEvent(ip[1],action,details)
         return redirect('/netapp')
     except:

@@ -9,29 +9,30 @@
 <div class="container">
     <div class="list" id="history">
         <table>
+            <h2> History </h2>
+
             <tr>
                 <th>IP</th>
                 <th>Date</th>
                 <th>Action</th>
             </tr>
             <tr>
-                {% if history|length < 1 %}
-                    <h2> History Empty </h2>
-                {% else %}
-                    <h2> History </h2>
-                    {% for row in history %}
-                    <tr>
-                        <td>{{ row.1 }}</td>
-                        <td>{{ row.2.date() }}</td>
-                        <td>{{ row.3 }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
+
+                {% for row in history %}
+                <tr>
+                    <td>{{ row.1 }}</td>
+                    <td>{{ row.2.date() }}</td>
+                    <td>{{ row.3 }}</td>
+                </tr>
+                {% endfor %}
+           
             </tr>
         </table>
     </div>
     <div class="list">
         <table>
+            <h2> IP Table </h2>
+
             <tr>
                 <th>IP</th>
                 <th>
@@ -48,20 +49,16 @@
                 <th>Delete</th>
                 <th>Update</th>
             </tr>
-                {% if ips|length < 1 %}
-                    <h2> IP Table Empty </h2>
-                {% else %}
-                    <h2> IP Table </h2>
-                    {% for ip in ips %}
-                    <tr>
-                        <td>{{ ip.1 }}</td>
-                        <td>{{ ip.2 }}</td>
-                        <td>{{ ip.3.date() }}</td>
-                        <td><a id='cancel' href="/delete/{{ip.0}}"><i class="fa fa-ban"></i></a></td>
-                        <td><a id='update' href="/update/{{ip.0}}"><i class="fa fa-wrench"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
+
+                {% for ip in ips %}
+                <tr>
+                    <td>{{ ip.1 }}</td>
+                    <td>{{ ip.2 }}</td>
+                    <td>{{ ip.3.date() }}</td>
+                    <td><a id='cancel' href="/delete/{{ip.0}}"><i class="fa fa-ban"></i></a></td>
+                    <td><a id='update' href="/update/{{ip.0}}"><i class="fa fa-wrench"></i></a></td>
+                </tr>
+                {% endfor %}
             </tr>
         </table>
     </div>

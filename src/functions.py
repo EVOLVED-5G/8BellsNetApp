@@ -32,7 +32,7 @@ def SubcribeAndInsert(ip):
     try:
         ## save history event to database    
         action = "INSERT"
-        details = "At {} IP : {} added in system".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
+        details = "{} : IP {} inserted in database".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
         db_controller.addHistoryEvent(ip,action,details)
 
         ## save ip to database
@@ -92,7 +92,7 @@ def Qos_CreateSubscription(ip):
         print("--- Subscribed to Qos successfully with id " + qos_id + "----")
         try:
             action = "SUBSCRIPTION"
-            details = "At {} IP : {} subscribed in qos notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
+            details = "{} : IP {} subscribed in QoS notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
             db_controller.addHistoryEvent(ip,action,details)
         except:
             return render_template('error.html', error='There was a problem with history!')
@@ -141,7 +141,7 @@ def Location_CreateSubscription(ip):
 
         try:
             action = "SUBSCRIPTION"
-            details = "At {} IP : {} subscribed in event notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
+            details = "{} : IP {} subscribed in Location notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
             db_controller.addHistoryEvent(ip,action,details)
             return event_id
         except:
@@ -176,7 +176,7 @@ def Qos_Unsubscribe(ip):
             qos_awareness.delete_subscription(netapp_id, subscription_id)
 
             action = "UNSUBSCRIPTION"
-            details = "At {} IP : {} unsubscribed from qos notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
+            details = "{} : IP {} unsubscribed from QoS notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
             db_controller.addHistoryEvent(ip[1],action,details)
         except:
             return render_template('error.html', error='There was a problem with unsubscribing from Qos!')
@@ -206,7 +206,7 @@ def Location_Unsubscribe(ip):
             location_subscriber.delete_subscription(netapp_id,subscription_id)
 
             action = "UNSUBSCRIPTION"
-            details = "At {} IP : {} unsubscribed from event notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
+            details = "{} : IP {} unsubscribed from Location notification".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip[1])
             db_controller.addHistoryEvent(ip[1],action,details)
         except:
             return render_template('error.html', error='There was a problem with history!')

@@ -5,6 +5,7 @@ body{
 
 .header{
     position: fixed;
+    float: center;
     left: 0;
     top:0;
     width: 100%;
@@ -189,7 +190,7 @@ li a {
   text-decoration: none;
 }
 
-  /* Change the link color to #111 (black) on hover */
-  li a:hover {
-      background-color: #111;
-  }
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+    background-color: #111;
+}
