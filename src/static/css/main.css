@@ -1,17 +1,15 @@
 body{
     font-family: sans-serif;
-    background-color: #385c8d;
+    background-color: lightgray;
 }
 
 .header{
     position: fixed;
-    float: center;
     left: 0;
     top:0;
     width: 100%;
-    background-color: #868282;
+    background-color: #a3a3a3;
     color: white;
-    text-align: center;
 }
 
 h2{
@@ -28,26 +26,28 @@ h2{
 }
 
 .container{
-  margin: 10%;
+  margin-bottom: 0;
   display: flex;
-  margin-top: 200px;
+  margin-top: 100px;
   font-family: sans-serif;
-  background-color: #385c8d;
+  background-color: lightgray;
 }
+
 
 .list{
   padding: 20px;
   margin: 10px;
   height: 500px;
   border-radius: 5px;
-  background-color: #e3ae4c;
+  background-color: white;
   flex: 1;
+  box-shadow: 1px 10px 10px #888888;
 }
 
 #history{
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-  overflow-y: scroll;
+  overflow-y:auto;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -60,6 +60,7 @@ h2{
     padding: 12px 16px;
     text-decoration: none;
     display: block;
+    float: left;
 }
 
 #cancel{
@@ -141,7 +142,7 @@ input[type=submit]:hover {
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #e3ae4c;
+
   width: 150px;
   height: 150px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -165,17 +166,17 @@ input[type=submit]:hover {
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: #868282;
   color: white;
   text-align: center;
+  font-size: 12px;
+  /* color: black; */
 }
 
 ul {
   list-style-type: none;
-  margin: 0;
-  padding: 0;
   overflow: hidden;
-  background-color: #868282;
+  float: right;
+  margin-right: 5%;
 }
 
 li {
