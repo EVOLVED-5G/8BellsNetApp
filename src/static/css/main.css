@@ -57,7 +57,7 @@ h2{
 
 #redirect_to_start{
     color: white;
-    padding: 12px 16px;
+    padding: 20px 30px 0px;
     text-decoration: none;
     display: block;
     float: left;
@@ -90,7 +90,7 @@ th, td {
 }
 
 tr:nth-child(even){
-    background-color: #868282
+    background-color: #ededed
 }
 
 th {
@@ -156,6 +156,7 @@ input[type=submit]:hover {
 
 .dropdown-content a {
   color: #385c8d;
+  background-color: whitesmoke;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
@@ -168,7 +169,7 @@ input[type=submit]:hover {
   width: 100%;
   color: white;
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   /* color: black; */
 }
 
@@ -191,7 +192,6 @@ li a {
   text-decoration: none;
 }
 
-/* Change the link color to #111 (black) on hover */
 li a:hover {
-    background-color: #111;
+    background-color: #7f7f7f;
 }
