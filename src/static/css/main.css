@@ -44,6 +44,16 @@ h2{
   box-shadow: 1px 10px 10px #888888;
 }
 
+.deletebtn{
+  border-color: cornsilk;
+  position: fixed;
+  width: 12%;
+  margin-top: 2%;
+  text-align: center;
+  margin-left: 8.5%;
+  cursor: pointer;
+}
+
 #history{
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
@@ -109,7 +119,7 @@ input[type=text], select {
 }
   
 input[type=submit] {
-    width: 95%;
+    width: 100%;
     background-color: #385c8d;
     color: white;
     padding: 14px 20px;

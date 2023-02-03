@@ -173,15 +173,18 @@ def update(id):
 ## Search by Access
 @app.route('/netapp/SearchByAccess/<string:access>')
 def SearchByAccess(access):
-    functions.delete_all()
-
+    
     all_ips = db_controller.getIps()
     if access == "ALL":
         return render_template('index.html', ips=all_ips)
     else:
         access_ips = db_controller.searchByAccess(access)
         return render_template('index.html', ips=access_ips)
-
+    
+@app.route('/netapp/deleteall', methods=['GET'])
+def delete_all():
+    functions.delete_all()
+    return redirect('/netapp')
 
 
 ## NEF Login
@@ -211,34 +214,14 @@ def login():
         raise e
 
 
-
-#QOS NOTIFICATION
-@app.route('/qosmonitoring/callback', methods=['POST'])
-def location_qos_reporter():
-    print("New qos notification retrieved:")
-    qos_dict=json.loads(request.data)
-    qos_ip=qos_dict["ipv4Addr"]
-    #qos_id=qos_dict["transaction"].split("/")[-1]
-    qos=qos_dict["eventReports"][0]["event"]
-    #print("qos id:",qos_id)
-    #print("qos :",qos)
-    action = "QOS NOTIFICATION"
-    details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),qos_ip,qos)
-    db_controller.addHistoryEvent(qos_ip,action,details)
-    return "status 200"
-
-#EVENT NOTIFICATION
+## Callback
 @app.route('/monitoring/callback', methods=['POST'])
 def location_event_reporter():
     print("New event notification retrieved:")
-    event_dict=json.loads(request.data)
+    event_dict = json.loads(request.data)
     event_ip = event_dict["ipv4Addr"]
 
-    print("prin")
-
-
     if( next(iter(event_dict)) == "externalId"):
-
 
         cell_id=event_dict["locationInfo"]["cellId"]
         enodeB_id=event_dict["locationInfo"]["enodeBId"]
@@ -254,10 +237,9 @@ def location_event_reporter():
         details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
         db_controller.addHistoryEvent(event_ip,action,details)
 
-    print(event_dict)
-    redirect('/netapp')
+    # print(event_dict)
 
-    return "status 200"
+    return '', 200
 
 
 #qos_api_url = "http://"+nef_ip+"/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions"
@@ -297,25 +279,9 @@ def location_event_reporter():
 #     }]
 # }
 
-
-
-# 'transaction': 'http://172.20.23.53:8888/nef/api/v1/3gpp-as-session-with-qos/v1/NetApp_app/subscriptions/6349313c64269f9928f70e95', 
-# 'ipv4Addr': '10.0.0.2', 
-# 'eventReports': [{
-#       'event': 'QOS_NOT_GUARANTEED', 
-#       'accumulatedUsage': {
-#           'duration': None, 
-#           'totalVolume': None, 
-#           'downlinkVolume': None, 
-#           'uplinkVolume': None}, 
-#       'appliedQosRef': None, 
-#       'qosMonReports': [{'ulDelays': [0], 'dlDelays': [0], 'rtDelays': [0]}]
-#       }]
-# }
-
 if __name__ == '__main__':
     ## Initialize Postgres Database
-    print("\n┌──────────────────────┐\n Initializing Database..")
+    print("\n────────────────────────\n Initializing Database..")
     init_database.init_db()
     print("Netapp running..")
 
