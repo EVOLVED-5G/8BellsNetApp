@@ -228,20 +228,35 @@ def location_qos_reporter():
     return "status 200"
 
 #EVENT NOTIFICATION
-@app.route('/eventmonitoring/callback', methods=['POST'])
+@app.route('/monitoring/callback', methods=['POST'])
 def location_event_reporter():
     print("New event notification retrieved:")
     event_dict=json.loads(request.data)
-    event_ip=event_dict["ipv4Addr"]
-    #event_id=event_dict["subscription"].split("/")[-1]
-    #loc_info=event_dict["locationInfo"]
-    cell_id=event_dict["locationInfo"]["cellId"]
-    enodeB_id=event_dict["locationInfo"]["enodeBId"]
-    #print("event id:",event_id)
-    #print("event report:",enodeB_id+"  "+cell_id)
-    action = "EVENT NOTIFICATION"
-    details = "At {} IP : {} BaseStation : {} moved to cell : {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,enodeB_id,cell_id)
-    db_controller.addHistoryEvent(event_ip,action,details)
+    event_ip = event_dict["ipv4Addr"]
+
+    print("prin")
+
+
+    if( next(iter(event_dict)) == "externalId"):
+
+
+        cell_id=event_dict["locationInfo"]["cellId"]
+        enodeB_id=event_dict["locationInfo"]["enodeBId"]
+
+
+        action = "EVENT NOTIFICATION"
+        details = "At {} IP : {} BaseStation : {} moved to cell : {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,enodeB_id,cell_id)
+        db_controller.addHistoryEvent(event_ip,action,details)
+
+    else:
+        qos=event_dict["eventReports"][0]["event"]
+        action = "QOS NOTIFICATION"
+        details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
+        db_controller.addHistoryEvent(event_ip,action,details)
+
+    print(event_dict)
+    redirect('/netapp')
+
     return "status 200"
 
 
@@ -249,14 +264,41 @@ def location_event_reporter():
 #ue_url = "http://"+nef_ip+"/api/v1/UEs"
 #cell_url = "http://"+nef_ip+"/api/v1/Cells"
 
-#event  {
-# 'externalId': '10002@domain.com', 
-# 'ipv4Addr': '10.0.0.2', 
-# 'subscription': 'http://172.20.23.53:8888/nef/api/v1/3gpp-monitoring-event/v1/NetApp_app/subscriptions/6349313c64269f9928f70e98', 
-# 'monitoringType': 'LOCATION_REPORTING', 
-# 'locationInfo': {'cellId': 'AAAAA1002', 'enodeBId': 'AAAAA1'}}
+#event location 
+# {
+#     'externalId': '10003@domain.com',
+#     'ipv4Addr': '10.0.0.3',
+#     'subscription': 'http://10.10.10.35:8888/nef/api/v1/3gpp-monitoring-event/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda94', 
+#     'monitoringType': 'LOCATION_REPORTING', 
+#     'locationInfo': {
+#         'cellId': 'AAAAA1001',
+#         'enodeBId': 'AAAAA1'
+#     }
+# }
 
-#qos    {
+#qos    
+# {
+#     'transaction': 'http://10.10.10.35:8888/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda93', 
+#     'ipv4Addr': '10.0.0.3', 
+#     'eventReports': [{
+#         'event': 'QOS_GUARANTEED', 
+#         'accumulatedUsage': {
+#             'duration': None, 
+#             'totalVolume': None, 
+#             'downlinkVolume': None, 
+#             'uplinkVolume': None
+#         }, 
+#         'appliedQosRef': None, 
+#         'qosMonReports': [{
+#             'ulDelays': [0], 
+#             'dlDelays': [0], 
+#             'rtDelays': [0]
+#         }]
+#     }]
+# }
+
+
+
 # 'transaction': 'http://172.20.23.53:8888/nef/api/v1/3gpp-as-session-with-qos/v1/NetApp_app/subscriptions/6349313c64269f9928f70e95', 
 # 'ipv4Addr': '10.0.0.2', 
 # 'eventReports': [{
@@ -273,7 +315,7 @@ def location_event_reporter():
 
 if __name__ == '__main__':
     ## Initialize Postgres Database
-    print("\nInitializing Database..")
+    print("\n┌──────────────────────┐\n Initializing Database..")
     init_database.init_db()
     print("Netapp running..")
 

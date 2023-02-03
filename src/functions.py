@@ -10,6 +10,7 @@ import datetime, os
 netapp_name=os.environ['NETAPP_NAME']
 nef_ip=os.environ['NEF_IP']
 app_ip=os.environ['NETAPP_IP']
+callback_adress=os.environ['CALLBACK_ADR']
 nef_domain="@domain.com"
 
 
@@ -73,7 +74,7 @@ def Qos_CreateSubscription(ip):
                                         
 
     netapp_id = netapp_name
-    notification_destination="http://172.17.0.1:5000/monitoring/callback"
+    notification_destination = callback_adress
 
     try:
         subscription = qos_awareness.create_guaranteed_bit_rate_subscription(
@@ -119,7 +120,7 @@ def Location_CreateSubscription(ip):
                         )
 
     netapp_id = netapp_name
-    notification_destination="http://172.17.0.1:5000/monitoring/callback"
+    notification_destination = callback_adress
 
     #datetime monitor_expire_time: Identifies the absolute time at which the related monitoring event request is considered to expire
     expire_time = (datetime.datetime.utcnow() + datetime.timedelta(days=1)).isoformat() + "Z"
@@ -218,7 +219,7 @@ def Location_Unsubscribe(ip):
 
 def delete_existing_qos_subscriptions():
     # How to get all subscriptions
-    netapp_id = "myNetapp"
+    netapp_id = netapp_name
     qos_awareness = QosAwareness(
                         nef_url=emulator_utils.get_url_of_the_nef_emulator(),
                         nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
@@ -243,7 +244,7 @@ def delete_existing_qos_subscriptions():
     
 def delete_existing_location_subscriptions():
     # How to get all subscriptions
-    netapp_id = "myNetapp"
+    netapp_id = netapp_name
     location_subscriber = LocationSubscriber(
                             nef_url=emulator_utils.get_url_of_the_nef_emulator(),
                             nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,

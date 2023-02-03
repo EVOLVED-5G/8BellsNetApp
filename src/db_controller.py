@@ -1,16 +1,22 @@
-import psycopg2
+import psycopg2,os
 
 sql_add_ip = """INSERT INTO IP(ip,qos_id,event_id) VALUES(%s,%s,%s) RETURNING id;"""
 sql_add_history = """INSERT INTO History(ip_name,action,details) VALUES(%s,%s,%s) RETURNING id;"""
 
+dbname = os.environ['DB_NAME']
+user = os.environ['DB_USERNAME']
+host = os.environ['HOST']
+password = os.environ['DB_PASS']
+port = os.environ['DB_PORT']
+
 #get connection with db
 def connectDatabase():
     conn = psycopg2.connect(
-        dbname="postgres",
-        user="postgres",
-        host="10.10.10.35",
-        password="postgres",
-        port=5432)
+        dbname=dbname,
+        user=user,
+        host=host,
+        password=password,
+        port=port)
     return conn
 
 ## GET

@@ -1,16 +1,18 @@
 from evolved5g import swagger_client
 from evolved5g.swagger_client import LoginApi, User
 from evolved5g.swagger_client.models import Token
-import requests,sys
+import os,requests
 
+nef_user=os.environ['NEF_USER']
+nef_password=os.environ['NEF_PASS']
+nef_ip=os.environ['NEF_IP']
 
 def get_token_for_nef_emulator() -> Token:
 
-    username = "admin@my-email.com"
-    password = "pass"
-    # User name and pass matches are set in the .env of the docker of NEF_EMULATOR. See
-    # https://github.com/EVOLVED-5G/NEF_emulator
+    username = nef_user
+    password = nef_password
     configuration = swagger_client.Configuration()
+
     # The host of the 5G API (emulator)
     configuration.host = get_url_of_the_nef_emulator()
     api_client = swagger_client.ApiClient(configuration=configuration)
@@ -52,7 +54,7 @@ def get_api_client(token) -> swagger_client.ApiClient:
 
 
 def get_url_of_the_nef_emulator() -> str:
-    return "http://10.10.10.35:8888"
+    return nef_ip
 
 def get_folder_path_for_certificated_and_capif_api_key()->str:
     """
@@ -60,7 +62,6 @@ def get_folder_path_for_certificated_and_capif_api_key()->str:
     It contains the certificates and the api.key needed to communicate with the CAPIF server
     :return:
     """
-    # return "/home/admin8b/8BellsNetApp/pythonnetapp/capif_onboarding"
     return "/usr/src/app/capif_onboarding"
     
 

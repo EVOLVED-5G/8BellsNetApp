@@ -3,7 +3,7 @@ version: '3.1'
 
 services:
   netapp:
-    container_name: "myNetapp"
+    container_name: 8b_netapp
     image: 8b_netapp:latest
     env_file:
       - .env
@@ -14,20 +14,23 @@ services:
       NEF_USER: ${nef_user}
       NEF_PASS: ${nef_password}
       NEF_PORT: ${nef_port}
+      CALLBACK_ADR: ${callback_adress}
+      HOST: ${host}
+      DB_NAME: ${postgres_db}
+      DB_USERNAME: ${postgres_username}
+      DB_PASS: ${postgres_password}
+      DB_PORT: ${postgres_port}
     restart: unless-stopped
     build:
-      # build the image from Dockerfile
       context: ./src
       dockerfile: Dockerfile
-    volumes:
-      - ./src:/app
     ports:
       - 5000:5000
     depends_on:
       - postgres
 
   postgres:
-    container_name: NetApp_db
+    container_name: 8b_netapp_db
     image: postgres:14
     ports:
       - 5432:5432
@@ -40,16 +43,10 @@ services:
       retries: 20
 
   adminer:
-    container_name: NetApp_adminer
+    container_name: 8b_netapp_adminer
     image: adminer:4.7
     ports:
       - 8008:8080
     depends_on:
       postgres:
         condition: service_healthy
-
-# volumes definition here
-volumes:
-  # just a persistance data
-  mysql-data:
-    driver: local

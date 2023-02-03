@@ -21,7 +21,7 @@ h2{
     top: 20%;
     left: 30%;
     border-radius: 5px;
-    background-color: #e3ae4c;
+    background-color: #7b92b1;
     padding: 20px;
 }
 
@@ -120,7 +120,7 @@ input[type=submit] {
 }
   
 input[type=submit]:hover {
-    background-color: #385c8d;
+    background-color: #a3a3a3;
 }
 
 /* Style The Dropdown Button */
