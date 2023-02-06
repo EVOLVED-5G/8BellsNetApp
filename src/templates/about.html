@@ -6,30 +6,30 @@
 
 <!--BODY-->
 {% block body %}
-<div class="container" style="z-index: 1;">
+<div class="about" style="z-index: 1;">
+  <div class="listabout">
 
-    <h2>NETAPP MANUAL</h2>
-    <table style="width:100%">
+    <table style="width:50%;margin-left:auto;margin-right:auto;">
         <tr>
-            <th>WEB PAGE</th>
-            <td>INFORMATION</td>
+            <th style="text-align:center; background-color:#385c8d; width:100px; color:black">PAGES</th>
+            <td style="text-align:center; background-color:#385c8d;color:black;">INSTRUCTIONS</td>
         </tr>
         <tr>
-          <th>Start Page</th>
-          <td><img src="./static/startpage.png" alt="start-page-info" width="500" height="300" style="float:left"></td>
+          <th style="text-align:center; background-color:#7b92b1; height:300px;color:black">Home Page</th>
+          <td><img src="./static/home.png" alt="start-page-info" width=100% height=100%  style="float:left;"></td>
         </tr>
         <tr>
-          <th>Edit Page</th>
-          <td><img src="./static/editpage.png" alt="edit-page-info" width="500" height="300" style="float:left"></td>
+          <th style="text-align:center; background-color:#7b92b1; color:black">Edit Page</th>
+          <td><img src="./static/edit.png" alt="edit-page-info" width=100%  height=100%  style="float:left;"></td>
         </tr>
     </table>
-</body>
+  </body>
+  </div>
+
 <style>
-h2{
-    text-align: start;
-}
+
 table, th, td {
-  border: 1px solid black;
+  border: 0.5px solid rgb(155, 155, 155);
   border-collapse: collapse;
 }
 th, td {
