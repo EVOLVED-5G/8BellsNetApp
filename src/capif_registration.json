@@ -5,7 +5,7 @@
   "capif_https_port": 443,
   "capif_netapp_username": "8b_netapp",
   "capif_netapp_password": "8bpass",
-  "capif_callback_url": "http://localhost:5000",
+  "capif_callback_url": "http://172.17.0.1:5000",
   "description": "8bells_netapp_description",
   "csr_common_name": "8b_netapp",
   "csr_organizational_unit": "8bells_u",
