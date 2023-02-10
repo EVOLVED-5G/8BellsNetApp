@@ -6,11 +6,12 @@ import os,requests
 nef_user=os.environ['NEF_USER']
 nef_password=os.environ['NEF_PASS']
 nef_ip=os.environ['NEF_IP']
+capifhost=os.environ['CAPIF_HOSTNAME']
 
 def get_token_for_nef_emulator() -> Token:
 
-    username = nef_user
-    password = nef_password
+    username = str(nef_user)
+    password = str(nef_password)
     configuration = swagger_client.Configuration()
 
     # The host of the 5G API (emulator)
@@ -71,7 +72,7 @@ def get_capif_host()->str:
     127.0.0.1       capifcore
     :return:
     """
-    return "capifcore"
+    return capifhost
 
 def get_capif_https_port()->int:
     """

@@ -20,7 +20,7 @@ services:
       DB_USERNAME: ${postgres_username}
       DB_PASS: ${postgres_password}
       DB_PORT: ${postgres_port}
-      CAPIF_HOSTNAME: "capifcore"
+      CAPIF_HOSTNAME: ${capifhost}
       CAPIF_PORT_HTTP: "8080"
       CAPIF_PORT_HTTPS: "443"
       CALLBACK_ADDRESS: ${host}:5000
