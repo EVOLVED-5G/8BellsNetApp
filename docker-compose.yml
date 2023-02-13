@@ -14,7 +14,7 @@ services:
       NEF_USER: ${nef_user}
       NEF_PASS: ${nef_password}
       NEF_PORT: ${nef_port}
-      CALLBACK_ADR: ${callback_adress}
+      CALLBACK_ADR: ${callback_address}
       HOST: ${host}
       DB_NAME: ${postgres_db}
       DB_USERNAME: ${postgres_username}

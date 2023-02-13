@@ -22,30 +22,6 @@ def get_token_for_nef_emulator() -> Token:
     token = api.login_access_token_api_v1_login_access_token_post("", username, password, "", "", "")
     return token
 
-    # body = {
-    #     "username": "admin@my-email.com",
-    #     "password": "pass"
-    # }
-
-    # try:
-    #     ## try to login 
-    #     nefResponse = requests.post(get_url_of_the_nef_emulator()+'/api/v1/login/access-token', data=body)
-    #     print("Successfull login at NEF with response:",nefResponse,file=sys.stderr)
-
-    #     ## extract token
-    #     token = nefResponse.json()
-
-    #     ## test token
-    #     # nefHeaders = {"Authorization": token['token_type'] + ' ' + token['access_token']}
-    #     # nefResponse = requests.post(nef_ip+'/api/v1/login/test-token', headers=nefHeaders)
-    #     # print(nefResponse.json(),file=sys.stderr)
-    # except Exception as e:
-    #     print("Didnt manage to login",file=sys.stderr)
-    #     raise e
-
-    # return token['access_token']
-
-
 def get_api_client(token) -> swagger_client.ApiClient:
     configuration = swagger_client.Configuration()
     configuration.host = get_url_of_the_nef_emulator()

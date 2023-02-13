@@ -10,12 +10,12 @@ import datetime, os
 netapp_name=os.environ['NETAPP_NAME']
 nef_ip=os.environ['NEF_IP']
 app_ip=os.environ['NETAPP_IP']
-callback_adress=os.environ['CALLBACK_ADR']
+callback_address=os.environ['CALLBACK_ADR']
 nef_domain="@domain.com"
 
 
 ## Subscribe and Insert to database
-def SubcribeAndInsert(ip):
+def SubscribeAndInsert(ip):
     print("Working with ip:",ip)
 
     ## subscribe to QoS and Location
@@ -74,7 +74,7 @@ def Qos_CreateSubscription(ip):
                                         
 
     netapp_id = netapp_name
-    notification_destination = callback_adress
+    notification_destination = callback_address
 
     try:
         subscription = qos_awareness.create_guaranteed_bit_rate_subscription(
@@ -120,7 +120,7 @@ def Location_CreateSubscription(ip):
                         )
 
     netapp_id = netapp_name
-    notification_destination = callback_adress
+    notification_destination = callback_address
 
     #datetime monitor_expire_time: Identifies the absolute time at which the related monitoring event request is considered to expire
     expire_time = (datetime.datetime.utcnow() + datetime.timedelta(days=1)).isoformat() + "Z"

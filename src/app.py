@@ -63,7 +63,7 @@ def importcsv():
 
                 ## Add new ip
                 if not exist:
-                    functions.SubcribeAndInsert(row[0])
+                    functions.SubscribeAndInsert(row[0])
                     
     else:
         return default()
@@ -81,7 +81,7 @@ def addip():
             print ("\nIP already exists. Redirecting..")
             return redirect('/netapp')
 
-    functions.SubcribeAndInsert(post_ip)
+    functions.SubscribeAndInsert(post_ip)
     return redirect('/netapp')
 
 ## Delete IP row
@@ -187,36 +187,9 @@ def delete_all():
     return redirect('/netapp')
 
 
-## NEF Login
-@app.route("/unregistered_traffic", methods=["POST", "GET"])
-def login():
-    body = {
-        "username": "admin@my-email.com",
-        "password": "pass"
-    }
-
-    try:
-        ## try to login 
-        nefResponse = requests.post(nef_ip+'/api/v1/login/access-token', data=body)
-        print("Successfull login at NEF with response:",nefResponse,file=sys.stderr)
-
-        ## extract token
-        # token = nefResponse.json()
-        # print(token,file=sys.stderr)
-
-        ## test token
-        # nefHeaders = {"Authorization": token['token_type'] + ' ' + token['access_token']}
-        # nefResponse = requests.post(nef_ip+'/api/v1/login/test-token', headers=nefHeaders)
-        # print(nefResponse.json(),file=sys.stderr)
-
-    except Exception as e:
-        print("Didnt manage to login",file=sys.stderr)
-        raise e
-
-
 ## Callback
 @app.route('/monitoring/callback', methods=['POST'])
-def location_event_reporter():
+def notification_reporter():
     print("New event notification retrieved:")
     event_dict = json.loads(request.data)
     event_ip = event_dict["ipv4Addr"]
@@ -242,9 +215,31 @@ def location_event_reporter():
     return '', 200
 
 
-#qos_api_url = "http://"+nef_ip+"/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions"
-#ue_url = "http://"+nef_ip+"/api/v1/UEs"
-#cell_url = "http://"+nef_ip+"/api/v1/Cells"
+## NEF Login
+# @app.route("/unregistered_traffic", methods=["POST", "GET"])
+# def login():
+#     body = {
+#         "username": "admin@my-email.com",
+#         "password": "pass"
+#     }
+
+#     try:
+#         ## try to login 
+#         nefResponse = requests.post(nef_ip+'/api/v1/login/access-token', data=body)
+#         print("Successfull login at NEF with response:",nefResponse,file=sys.stderr)
+
+#         ## extract token
+#         # token = nefResponse.json()
+#         # print(token,file=sys.stderr)
+
+#         ## test token
+#         # nefHeaders = {"Authorization": token['token_type'] + ' ' + token['access_token']}
+#         # nefResponse = requests.post(nef_ip+'/api/v1/login/test-token', headers=nefHeaders)
+#         # print(nefResponse.json(),file=sys.stderr)
+
+#     except Exception as e:
+#         print("Didnt manage to login",file=sys.stderr)
+#         raise e
 
 #event location 
 # {
