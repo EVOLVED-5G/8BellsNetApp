@@ -86,7 +86,8 @@ def Qos_CreateSubscription(ip):
             usage_threshold=usage_threshold,
             qos_monitoring_parameter=uplink,
             threshold=uplink_threshold,
-            reporting_mode= QosAwareness.EventTriggeredReportingConfiguration(wait_time_in_seconds=10)
+            reporting_mode=QosAwareness.EventTriggeredReportingConfiguration(wait_time_in_seconds=5)
+            # reporting_mode=QosAwareness.PeriodicReportConfiguration(repetition_period_in_seconds=10)
         )
 
         qos_id = subscription.link.split("/")[-1]

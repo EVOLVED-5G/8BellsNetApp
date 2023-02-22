@@ -4,7 +4,7 @@ import init_database
 import db_controller
 import functions
 
-import requests, json, csv, os, sys, datetime
+import requests, json, csv, os, datetime, paramiko, io
 
 ALLOWED_EXTENSIONS = set(['csv'])
 
@@ -12,6 +12,9 @@ ALLOWED_EXTENSIONS = set(['csv'])
 netapp_name=os.environ['NETAPP_NAME']
 nef_ip=os.environ['NEF_IP']
 app_ip=os.environ['NETAPP_IP']
+vapp_host=os.environ['VAPP_IP']
+vapp_user=os.environ['VAPP_USER']
+vapp_pass=os.environ['VAPP_PASS']
 nef_domain="@domain.com"
 
 app = Blueprint("app", __name__, template_folder="templates")
@@ -19,7 +22,7 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 app = Flask(__name__, template_folder='templates')
 
 ## Routes ##
-#Default Route
+# Default Route
 @app.route('/')
 def default():
     return redirect('/netapp')
@@ -181,6 +184,7 @@ def SearchByAccess(access):
         access_ips = db_controller.searchByAccess(access)
         return render_template('index.html', ips=access_ips)
     
+
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
     functions.delete_all()
@@ -199,47 +203,59 @@ def notification_reporter():
         cell_id=event_dict["locationInfo"]["cellId"]
         enodeB_id=event_dict["locationInfo"]["enodeBId"]
 
-
-        action = "EVENT NOTIFICATION"
+        action = "LOCATION NOTIFICATION"
         details = "At {} IP : {} BaseStation : {} moved to cell : {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,enodeB_id,cell_id)
         db_controller.addHistoryEvent(event_ip,action,details)
 
     else:
         qos=event_dict["eventReports"][0]["event"]
-        action = "QOS NOTIFICATION"
+
+        # print(event_dict)
+
+        # ssh to vapp with event_ip
+        if(qos == "QOS_NOT_GUARANTEED"):
+            add_throttling_flows_vapp(event_ip)
+            print(qos)
+        else:
+            # QOS_GUARANTEED
+            add_allow_flows_vapp(event_ip)
+            print(qos)
+
+        action = qos
         details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
         db_controller.addHistoryEvent(event_ip,action,details)
 
-    # print(event_dict)
 
     return '', 200
 
+def add_allow_flows_vapp(event_ip):
+    ssh = paramiko.SSHClient()
 
-## NEF Login
-# @app.route("/unregistered_traffic", methods=["POST", "GET"])
-# def login():
-#     body = {
-#         "username": "admin@my-email.com",
-#         "password": "pass"
-#     }
+    # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/id_rsa')
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
 
-#     try:
-#         ## try to login 
-#         nefResponse = requests.post(nef_ip+'/api/v1/login/access-token', data=body)
-#         print("Successfull login at NEF with response:",nefResponse,file=sys.stderr)
+    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
+    ssh.exec_command(command)
 
-#         ## extract token
-#         # token = nefResponse.json()
-#         # print(token,file=sys.stderr)
+    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:102"
+    ssh.exec_command(command)
 
-#         ## test token
-#         # nefHeaders = {"Authorization": token['token_type'] + ' ' + token['access_token']}
-#         # nefResponse = requests.post(nef_ip+'/api/v1/login/test-token', headers=nefHeaders)
-#         # print(nefResponse.json(),file=sys.stderr)
+    # ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+    # ssh_stdout.channel.set_combine_stderr(True)
+    # print("stdout ",ssh_stdout.readlines())
 
-#     except Exception as e:
-#         print("Didnt manage to login",file=sys.stderr)
-#         raise e
+def add_throttling_flows_vapp(event_ip):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+
+    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:101"
+    ssh.exec_command(command)
+
+    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:103"
+    ssh.exec_command(command)
+
 
 #event location 
 # {

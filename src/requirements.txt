@@ -2,5 +2,7 @@ Flask
 Flask-RESTful
 requests
 six
+paramiko
+bcrypt==3.2.2
 psycopg2-binary --no-binary :all:
 typing-extensions==3.10.0.2

@@ -24,6 +24,9 @@ services:
       CAPIF_PORT_HTTP: "8080"
       CAPIF_PORT_HTTPS: "443"
       CALLBACK_ADDRESS: ${host}:5000
+      VAPP_IP: ${vapp_ip}
+      VAPP_USER: ${vapp_user}
+      VAPP_PASS: ${vapp_pass}
     restart: unless-stopped
     build:
       context: ./src
