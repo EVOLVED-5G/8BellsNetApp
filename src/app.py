@@ -7,6 +7,7 @@ import functions
 import requests, json, csv, os, datetime, paramiko, io
 
 ALLOWED_EXTENSIONS = set(['csv'])
+VAPP_SERVICE=True
 
 ## Initialize variables
 netapp_name=os.environ['NETAPP_NAME']
@@ -76,28 +77,27 @@ def importcsv():
 @app.route('/addip', methods=['POST'])
 def addip():
     post_ip = request.form['ip']
-    all_ips = db_controller.getIps()
     
     ## check if ip already exists
-    for ip in all_ips:
-        if ip[1] == post_ip:
-            print ("\nIP already exists. Redirecting..")
-            return redirect('/netapp')
+    if(db_controller.existsIp(post_ip)):
+        print ("\nIP already exists. Redirecting..")
+    else:
+        functions.SubscribeAndInsert(post_ip)
 
-    functions.SubscribeAndInsert(post_ip)
     return redirect('/netapp')
 
 ## Delete IP row
 @app.route('/delete/<int:id>')
 def delete(id):
     ip = db_controller.searchById(id)
-    # if ip[2] == "ALLOW":
 
     ## Unsubscribe
     try:
         print("Unsubscribing for ip: ",ip[1])
         functions.Qos_Unsubscribe(ip)
         functions.Location_Unsubscribe(ip)
+        ## VAPP
+        delete_ip_flows(ip[1])
     except:
         return render_template('error.html', error='There was a problem with delete!')
 
@@ -132,7 +132,7 @@ def update(id):
         ## same IP
         if current_ip == request.form['ip']:
 
-            #IF ACCESS IS NOT THE SAME
+            ## if access is not the same
             if current_access != request.form['access']:
                 current_access = request.form['access']
                 try:
@@ -144,6 +144,8 @@ def update(id):
                         functions.Location_Unsubscribe(ip)
                         current_qos_id = "not_subscribed"
                         current_location_id = "not_subscribed"
+                        ## vapp
+                        delete_ip_flows(current_ip)
                 except:
                     return render_template('error.html', error='There was a problem with Update!')
 
@@ -153,6 +155,9 @@ def update(id):
             try:
                 functions.Qos_Unsubscribe(ip)
                 functions.Location_Unsubscribe(ip)
+                ## vapp
+                delete_ip_flows(current_ip)
+
                 if request.form['access'] == "ALLOW":
                     current_qos_id = functions.Qos_CreateSubscription(request.form['ip'])
                     current_location_id = functions.Location_CreateSubscription(request.form['ip'])
@@ -178,11 +183,13 @@ def update(id):
 def SearchByAccess(access):
     
     all_ips = db_controller.getIps()
+    history = db_controller.getHistory()
+
     if access == "ALL":
-        return render_template('index.html', ips=all_ips)
+        return render_template('index.html', ips=all_ips, history=history)
     else:
         access_ips = db_controller.searchByAccess(access)
-        return render_template('index.html', ips=access_ips)
+        return render_template('index.html', ips=access_ips, history=history)
     
 
 @app.route('/netapp/deleteall', methods=['GET'])
@@ -198,63 +205,79 @@ def notification_reporter():
     event_dict = json.loads(request.data)
     event_ip = event_dict["ipv4Addr"]
 
-    if( next(iter(event_dict)) == "externalId"):
+    if(db_controller.existsIp(event_ip)):
 
-        cell_id=event_dict["locationInfo"]["cellId"]
-        enodeB_id=event_dict["locationInfo"]["enodeBId"]
+        if( next(iter(event_dict)) == "externalId"):
 
-        action = "LOCATION NOTIFICATION"
-        details = "At {} IP : {} BaseStation : {} moved to cell : {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,enodeB_id,cell_id)
-        db_controller.addHistoryEvent(event_ip,action,details)
+            cell_id=event_dict["locationInfo"]["cellId"]
+            enodeB_id=event_dict["locationInfo"]["enodeBId"]
 
-    else:
-        qos=event_dict["eventReports"][0]["event"]
+            action = "LOCATION NOTIFICATION"
+            details = "At {} IP : {} BaseStation : {} moved to cell : {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,enodeB_id,cell_id)
+            db_controller.addHistoryEvent(event_ip,action,details)
 
-        # print(event_dict)
-
-        # ssh to vapp with event_ip
-        if(qos == "QOS_NOT_GUARANTEED"):
-            add_throttling_flows_vapp(event_ip)
-            print(qos)
         else:
-            # QOS_GUARANTEED
-            add_allow_flows_vapp(event_ip)
-            print(qos)
+            # print(event_dict)
+            qos = event_dict["eventReports"][0]["event"]
 
-        action = qos
-        details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
-        db_controller.addHistoryEvent(event_ip,action,details)
+            # SSH to vapp with event_ip
+            if(qos == "QOS_NOT_GUARANTEED"):
+                add_throttling_flows_vapp(event_ip)
+                print(qos)
+            else:
+                # QOS_GUARANTEED
+                add_allow_flows_vapp(event_ip)
+                print(qos)
 
+            action = qos
+            details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
+            db_controller.addHistoryEvent(event_ip,action,details)
 
     return '', 200
 
 def add_allow_flows_vapp(event_ip):
-    ssh = paramiko.SSHClient()
+    if(VAPP_SERVICE): 
+        ssh = paramiko.SSHClient()
 
-    # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/id_rsa')
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+        # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/id_rsa')
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
 
-    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
-    ssh.exec_command(command)
+        command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
+        ssh.exec_command(command)
 
-    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:102"
-    ssh.exec_command(command)
+        command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:102"
+        ssh.exec_command(command)
 
-    # ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-    # ssh_stdout.channel.set_combine_stderr(True)
-    # print("stdout ",ssh_stdout.readlines())
+        # ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+        # ssh_stdout.channel.set_combine_stderr(True)
+        # print("stdout ",ssh_stdout.readlines())
+    
 
 def add_throttling_flows_vapp(event_ip):
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+    if(VAPP_SERVICE):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
 
-    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:101"
-    ssh.exec_command(command)
+        command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:101"
+        ssh.exec_command(command)
 
-    command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:103"
-    ssh.exec_command(command)
+        command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:103"
+        ssh.exec_command(command)
+
+def delete_ip_flows(event_ip):
+    if(VAPP_SERVICE):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+
+        command = "sudo ovs-ofctl -O OpenFlow13 del-flows Firewall dl_type=0x0800,ip_src="+ event_ip
+        print(command)
+        ssh.exec_command(command)
+
+        command = "sudo ovs-ofctl -O OpenFlow13 del-flows Firewall dl_type=0x0800,ip_dst="+ event_ip
+        ssh.exec_command(command)
 
 
 #event location 

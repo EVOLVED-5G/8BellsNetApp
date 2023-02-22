@@ -62,6 +62,19 @@ def searchByAccess(access):
     conn.close()
     return ips
 
+def existsIp(ip):
+    conn = connectDatabase()
+    cur = conn.cursor()
+    cur.execute('SELECT 1 FROM IP WHERE ip=%s;',[ip])
+    res = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if len(res):
+        return True
+    else:
+        return False
+
 #add row in ip table
 def addIp(ip,qos_id,event_id):
     conn = connectDatabase()
