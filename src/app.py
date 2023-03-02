@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect, Blueprint
+from flask import Flask, render_template, request, redirect
 from werkzeug.utils import secure_filename
 import init_database
 import db_controller
 import functions
 
-import requests, json, csv, os, datetime, paramiko, io
+import json, csv, os, datetime, paramiko
 
 ALLOWED_EXTENSIONS = set(['csv'])
 VAPP_SERVICE=True
@@ -18,8 +18,6 @@ vapp_user=os.environ['VAPP_USER']
 vapp_pass=os.environ['VAPP_PASS']
 nef_domain="@domain.com"
 
-app = Blueprint("app", __name__, template_folder="templates")
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 app = Flask(__name__, template_folder='templates')
 
 ## Routes ##
@@ -194,6 +192,21 @@ def SearchByAccess(access):
 
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
+    # ssh = paramiko.SSHClient()
+
+    # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/.ssh/id_rsa')
+    # print("key = ",rsa_key)
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+    # ssh.connect(hostname=vapp_host, username=vapp_user, pkey=rsa_key)
+
+
+    # command = "ls -a"
+    # ssh.exec_command(command)
+
+    # subprocess.Popen(f"ssh {user}@{host} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+
     functions.delete_all()
     return redirect('/netapp')
 
@@ -239,9 +252,11 @@ def add_allow_flows_vapp(event_ip):
     if(VAPP_SERVICE): 
         ssh = paramiko.SSHClient()
 
-        # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/id_rsa')
+        rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/.ssh/id_rsa')
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+        # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+        ssh.connect(hostname=vapp_host, username=vapp_user, pkey=rsa_key)
+
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
         ssh.exec_command(command)
