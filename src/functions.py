@@ -28,20 +28,20 @@ def SubscribeAndInsert(ip):
         event_id = Location_CreateSubscription(ip)
     except:
         return render_template('error.html', error='There was a problem with location!')
+    
+    if(not(qos_id == False or event_id == False)):
+        try:
+            ## save history event to database    
+            action = "INSERT"
+            details = "{} : IP {} inserted in database".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
+            db_controller.addHistoryEvent(ip,action,details)
 
+            ## save ip to database
+            db_controller.addIp(ip,qos_id,event_id)
 
-    try:
-        ## save history event to database    
-        action = "INSERT"
-        details = "{} : IP {} inserted in database".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),ip)
-        db_controller.addHistoryEvent(ip,action,details)
-
-        ## save ip to database
-        db_controller.addIp(ip,qos_id,event_id)
-
-        return True
-    except:
-        return render_template('error.html', error='There was a problem with DB!')
+            return True
+        except:
+            return render_template('error.html', error='There was a problem with DB!')
 
 ## Subscribe QoS
 def Qos_CreateSubscription(ip):
@@ -103,7 +103,7 @@ def Qos_CreateSubscription(ip):
     except ApiException as ex:
         if ex.status == 409:
             print("There is already an active qos subscription for this ip " + equipment_network_identifier)
-            return False, "There is already an active qos subscription" + equipment_network_identifier
+            return False
         else:
             raise
 
@@ -152,7 +152,7 @@ def Location_CreateSubscription(ip):
     except ApiException as ex:
         if ex.status == 409:
             print("There is already an active location subscription for UE with external id", external_id, '\n')
-            return False, "There is already an active location subscription for UE with external id " + external_id
+            return False
         else:
             raise
 
