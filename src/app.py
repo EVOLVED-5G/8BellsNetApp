@@ -7,7 +7,7 @@ import functions
 import requests, json, csv, os, datetime, paramiko, io
 
 ALLOWED_EXTENSIONS = set(['csv'])
-VAPP_SERVICE=False
+VAPP_SERVICE=True
 
 ## Initialize variables
 netapp_name=os.environ['NETAPP_NAME']
@@ -194,6 +194,7 @@ def SearchByAccess(access):
 
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
+    ## test ssh with vapp
     # ssh = paramiko.SSHClient()
     # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
