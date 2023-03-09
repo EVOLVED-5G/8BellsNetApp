@@ -192,20 +192,15 @@ def SearchByAccess(access):
 
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
-    # ssh = paramiko.SSHClient()
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+    command = "ls -a"
+    ssh.exec_command(command)
 
-    # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/.ssh/id_rsa')
-    # print("key = ",rsa_key)
-    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    # # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
-    # ssh.connect(hostname=vapp_host, username=vapp_user, pkey=rsa_key)
-
-
-    # command = "ls -a"
-    # ssh.exec_command(command)
-
-    # subprocess.Popen(f"ssh {user}@{host} {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+    ssh_stdout.channel.set_combine_stderr(True)
+    print("stdout ",ssh_stdout.readlines())
 
     functions.delete_all()
     return redirect('/netapp')
@@ -252,10 +247,10 @@ def add_allow_flows_vapp(event_ip):
     if(VAPP_SERVICE): 
         ssh = paramiko.SSHClient()
 
-        rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/.ssh/id_rsa')
+        # rsa_key = paramiko.RSAKey.from_private_key_file('/usr/src/app/vapp_onboarding/.ssh/id_rsa')
+        # ssh.connect(hostname=vapp_host, username=vapp_user, pkey=rsa_key)
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
-        ssh.connect(hostname=vapp_host, username=vapp_user, pkey=rsa_key)
+        ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
 
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
