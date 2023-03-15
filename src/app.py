@@ -192,15 +192,15 @@ def SearchByAccess(access):
 
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
-    command = "ls -a"
-    ssh.exec_command(command)
+    # ssh = paramiko.SSHClient()
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
+    # command = "ls -a"
+    # ssh.exec_command(command)
 
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-    ssh_stdout.channel.set_combine_stderr(True)
-    print("stdout ",ssh_stdout.readlines())
+    # ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+    # ssh_stdout.channel.set_combine_stderr(True)
+    # print("stdout ",ssh_stdout.readlines())
 
     functions.delete_all()
     return redirect('/netapp')
@@ -228,6 +228,10 @@ def notification_reporter():
             # print(event_dict)
             qos = event_dict["eventReports"][0]["event"]
 
+            action = qos
+            details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
+            db_controller.addHistoryEvent(event_ip,action,details)
+
             # SSH to vapp with event_ip
             if(qos == "QOS_NOT_GUARANTEED"):
                 add_throttling_flows_vapp(event_ip)
@@ -237,9 +241,6 @@ def notification_reporter():
                 add_allow_flows_vapp(event_ip)
                 print(qos)
 
-            action = qos
-            details = "At {} IP : {} moved to a cell with qos: {}".format(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),event_ip,qos)
-            db_controller.addHistoryEvent(event_ip,action,details)
 
     return '', 200
 

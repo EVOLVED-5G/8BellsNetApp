@@ -16,6 +16,8 @@ def get_token_for_nef_emulator() -> Token:
 
     # The host of the 5G API (emulator)
     configuration.host = get_url_of_the_nef_emulator()
+    configuration.verify_ssl = False
+    
     api_client = swagger_client.ApiClient(configuration=configuration)
     api_client.select_header_content_type(["application/x-www-form-urlencoded"])
     api = LoginApi(api_client)
