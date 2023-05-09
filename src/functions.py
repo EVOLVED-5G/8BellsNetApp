@@ -47,13 +47,12 @@ def SubscribeAndInsert(ip):
 def Qos_CreateSubscription(ip):
     print("Trying New QoS subscription with ip: "+ ip)
 
-    qos_awareness = QosAwareness(
-                        nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                        nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                        capif_host=emulator_utils.get_capif_host(),
-                        capif_https_port=emulator_utils.get_capif_https_port()
-                    )
+    token = emulator_utils.get_token_for_nef_emulator()
+    qos_awareness = QosAwareness(nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                                 nef_bearer_access_token=token.access_token,
+                                 folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
+                                 capif_host=emulator_utils.get_capif_host(),
+                                 capif_https_port=emulator_utils.get_capif_https_port())
 
     equipment_network_identifier = ip
     network_identifier = QosAwareness.NetworkIdentifier.IP_V4_ADDRESS
@@ -112,13 +111,14 @@ def Qos_CreateSubscription(ip):
 def Location_CreateSubscription(ip):
     print("Trying New location subscription with ip: "+ ip)
     
+    token = emulator_utils.get_token_for_nef_emulator()
     location_subscriber = LocationSubscriber(
-                            nef_url= emulator_utils.get_url_of_the_nef_emulator(),
-                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                            folder_path_for_certificates_and_capif_api_key= emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                            capif_host= emulator_utils.get_capif_host(),
-                            capif_https_port= emulator_utils.get_capif_https_port() 
-                        )
+                                nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                                nef_bearer_access_token=token.access_token,
+                                folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
+                                capif_host=emulator_utils.get_capif_host(),
+                                capif_https_port=emulator_utils.get_capif_https_port()
+                            )
 
     netapp_id = netapp_name
     notification_destination = callback_address
@@ -166,13 +166,14 @@ def Qos_Unsubscribe(ip):
 
     if(subscription_id != "not_subscribed"):
 
-        qos_awareness = QosAwareness(
-                            nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                            capif_host=emulator_utils.get_capif_host(),
-                            capif_https_port=emulator_utils.get_capif_https_port()
-                        )
+        token = emulator_utils.get_token_for_nef_emulator()
+        qos_awareness = QosAwareness(   
+                                    nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                                    nef_bearer_access_token=token.access_token,
+                                    folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
+                                    capif_host=emulator_utils.get_capif_host(),
+                                    capif_https_port=emulator_utils.get_capif_https_port()
+                                )
 
         try:
             qos_awareness.delete_subscription(netapp_id, subscription_id)
@@ -196,12 +197,13 @@ def Location_Unsubscribe(ip):
 
     if(subscription_id != "not_subscribed"):
 
+        token = emulator_utils.get_token_for_nef_emulator()
         location_subscriber = LocationSubscriber(
-                                nef_url= emulator_utils.get_url_of_the_nef_emulator(),
-                                nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                                folder_path_for_certificates_and_capif_api_key= emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
-                                capif_host= emulator_utils.get_capif_host(),
-                                capif_https_port= emulator_utils.get_capif_https_port() 
+                                nef_url=emulator_utils.get_url_of_the_nef_emulator(),
+                                nef_bearer_access_token=token.access_token,
+                                folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
+                                capif_host=emulator_utils.get_capif_host(),
+                                capif_https_port=emulator_utils.get_capif_https_port()
                             )
 
         try:
@@ -221,10 +223,11 @@ def Location_Unsubscribe(ip):
 def delete_existing_qos_subscriptions():
     # How to get all subscriptions
     netapp_id = netapp_name
-    qos_awareness = QosAwareness(
+    token = emulator_utils.get_token_for_nef_emulator()
+    qos_awareness = QosAwareness(   
                         nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                        nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                        nef_bearer_access_token=token.access_token,
+                        folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
                         capif_host=emulator_utils.get_capif_host(),
                         capif_https_port=emulator_utils.get_capif_https_port()
                     )
@@ -246,10 +249,11 @@ def delete_existing_qos_subscriptions():
 def delete_existing_location_subscriptions():
     # How to get all subscriptions
     netapp_id = netapp_name
+    token = emulator_utils.get_token_for_nef_emulator()
     location_subscriber = LocationSubscriber(
                             nef_url=emulator_utils.get_url_of_the_nef_emulator(),
-                            nef_bearer_access_token= emulator_utils.get_token_for_nef_emulator().access_token,
-                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_certificated_and_capif_api_key(),
+                            nef_bearer_access_token=token.access_token,
+                            folder_path_for_certificates_and_capif_api_key=emulator_utils.get_folder_path_for_netapp_certificates_and_capif_api_key(),
                             capif_host=emulator_utils.get_capif_host(),
                             capif_https_port=emulator_utils.get_capif_https_port()
                         )

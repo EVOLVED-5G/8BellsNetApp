@@ -24,7 +24,7 @@ def get_token_for_nef_emulator() -> Token:
     token = api.login_access_token_api_v1_login_access_token_post("", username, password, "", "", "")
     return token
 
-def get_api_client(token) -> swagger_client.ApiClient:
+def get_api_client_for_nef_emulator(token) -> swagger_client.ApiClient:
     configuration = swagger_client.Configuration()
     configuration.host = get_url_of_the_nef_emulator()
     configuration.access_token = token.access_token
@@ -35,7 +35,7 @@ def get_api_client(token) -> swagger_client.ApiClient:
 def get_url_of_the_nef_emulator() -> str:
     return nef_ip
 
-def get_folder_path_for_certificated_and_capif_api_key()->str:
+def get_folder_path_for_netapp_certificates_and_capif_api_key()->str:
     """
     This is the folder that was provided when you registered the NetApp to CAPIF.
     It contains the certificates and the api.key needed to communicate with the CAPIF server

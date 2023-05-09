@@ -4,10 +4,11 @@ import init_database
 import db_controller
 import functions
 
-import json, csv, os, datetime, paramiko
+import json, csv, os, datetime, paramiko, urllib3
 
 ALLOWED_EXTENSIONS = set(['csv'])
 VAPP_SERVICE=True
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## Initialize variables
 netapp_name=os.environ['NETAPP_NAME']
