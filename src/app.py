@@ -193,15 +193,6 @@ def SearchByAccess(access):
 
 @app.route('/netapp/deleteall', methods=['GET'])
 def delete_all():
-    # ssh = paramiko.SSHClient()
-    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    # ssh.connect(hostname=vapp_host, username=vapp_user, password=vapp_pass)
-    # command = "ls -a"
-    # ssh.exec_command(command)
-
-    # ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-    # ssh_stdout.channel.set_combine_stderr(True)
-    # print("stdout ",ssh_stdout.readlines())
 
     functions.delete_all()
     return redirect('/netapp')
@@ -257,6 +248,7 @@ def add_allow_flows_vapp(event_ip):
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:100"
         ssh.exec_command(command)
+        print(command)
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:102"
         ssh.exec_command(command)
@@ -274,6 +266,7 @@ def add_throttling_flows_vapp(event_ip):
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_src="+ event_ip +",priority=100,hard_timeout=360,actions=goto_table:101"
         ssh.exec_command(command)
+        print(command)
 
         command = "sudo ovs-ofctl -O OpenFlow13 add-flow Firewall dl_type=0x0800,ip_dst="+ event_ip +",priority=101,hard_timeout=360,actions=goto_table:103"
         ssh.exec_command(command)
@@ -296,7 +289,7 @@ def delete_ip_flows(event_ip):
 # {
 #     'externalId': '10003@domain.com',
 #     'ipv4Addr': '10.0.0.3',
-#     'subscription': 'http://10.10.10.35:8888/nef/api/v1/3gpp-monitoring-event/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda94', 
+#     'subscription': 'http://:/nef/api/v1/3gpp-monitoring-event/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda94', 
 #     'monitoringType': 'LOCATION_REPORTING', 
 #     'locationInfo': {
 #         'cellId': 'AAAAA1001',
@@ -306,7 +299,7 @@ def delete_ip_flows(event_ip):
 
 #qos    
 # {
-#     'transaction': 'http://10.10.10.35:8888/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda93', 
+#     'transaction': 'http://:/nef/api/v1/3gpp-as-session-with-qos/v1/myNetapp/subscriptions/63dbc86b91e36147e33dda93', 
 #     'ipv4Addr': '10.0.0.3', 
 #     'eventReports': [{
 #         'event': 'QOS_GUARANTEED', 
