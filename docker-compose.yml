@@ -27,6 +27,7 @@ services:
       VAPP_IP: ${vapp_ip}
       VAPP_USER: ${vapp_user}
       VAPP_PASS: ${vapp_pass}
+      ENVIRONMENT_MODE: ${ENVIRONMENT_MODE}
     restart: unless-stopped
     build:
       context: ./src
